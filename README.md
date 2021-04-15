@@ -43,7 +43,7 @@ Startup procedure builds and fires up containers with Jenkins and docker registr
 
 Ensure that docker and bash are available on your centos machine, you are a superuser and then - fire up `demo.sh` This will drop some auxiliary text with instructions and build and run Jenkins and registry. Follow the link provided in the script output and go through one of cases provided below.
 
-Output should look like this:
+Output should look like this (for the first time while building it may be more extensive=):
 
 ```
 [root@box jenkins-demo]# ./demo.sh
