@@ -1,0 +1,88 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>CUSTOM_GIT_SOURCE</name>
+          <description>Git repository URL to clone docker build context from</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CUSTOM_DOCKERFILE_NAME</name>
+          <description>A custom dockerfile path in context</description>
+          <defaultValue>Dockerfile</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>CUSTOM_DOCKERFILE</name>
+          <description>A custom dockerfile to build. Alternative to CUSTOM_GIT_SOURCE</description>
+          <defaultValue>FROM centos:7
+
+ADD https://gist.githubusercontent.com/shashi198/42ee53889d8bc11c36f25da4d2389941/raw/8ba1b1fca82082250f1297d9382b531229f51378/default-user.groovy /tmp/script.groovy</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CUSTOM_DOCKER_BUILD_CONTEXT_PATH</name>
+          <description></description>
+          <defaultValue>images/0_demo/</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CUSTOM_IMAGE_TAG</name>
+          <description>The image to tag and push after building</description>
+          <defaultValue>127.0.0.1:5000/demo-image</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>[[ -z &quot;$CUSTOM_GIT_SOURCE&quot; &amp;&amp; -z &quot;$CUSTOM_DOCKERFILE&quot; ]] &amp;&amp; echo Whether CUSTOM_GIT_SOURCE or CUSTOM_DOCKERFILE should be defined &amp;&amp; exit 1
+if [[ -n &quot;$CUSTOM_GIT_SOURCE&quot; ]]; then [[ -n &quot;$CUSTOM_DOCKERFILE&quot; ]] &amp;&amp; echo Both CUSTOM_GIT_SOURCE and CUSTOM_DOCKERFILE should not be set &amp;&amp; exit 1; fi
+
+saltfile=$(mktemp)
+echo $RANDOM &gt; $saltfile
+salt=$(cat $saltfile)
+
+
+if [[ -n &quot;$CUSTOM_GIT_SOURCE&quot; ]] ; then 
+  git clone $CUSTOM_GIT_SOURCE repo
+  cd repo/$CUSTOM_DOCKER_BUILD_CONTEXT_PATH
+  docker build -t &quot;temp-image-$salt&quot; -f CUSTOM_DOCKERFILE_NAME . 
+  docker tag &quot;temp-image-$salt&quot; $CUSTOM_IMAGE_TAG
+  docker push $CUSTOM_IMAGE_TAG
+  docker rmi &quot;temp-image-$salt&quot;
+  exit 0
+fi
+
+
+if [[ -n &quot;$CUSTOM_DOCKERFILE&quot; ]] ; then 
+  image_salt=&quot;$(cat /dev/urandom | tr -dc &apos;a-zA-Z0-9&apos; | fold -w 32 | head -n 1)&quot;
+  echo &quot;$CUSTOM_DOCKERFILE&quot; &gt; Dockerfile
+  docker build -t &quot;temp-image-$salt&quot; -f Dockerfile . 
+  docker tag &quot;temp-image-$salt&quot; $CUSTOM_IMAGE_TAG
+  docker push $CUSTOM_IMAGE_TAG
+  docker rmi &quot;temp-image-$salt&quot;
+  exit 0
+fi
+
+</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
