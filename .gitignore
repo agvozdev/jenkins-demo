@@ -1,3 +1,4 @@
 work/
 jenkins/jobs
+jenkins/jobs/docker-builder/*
 !jenkins/jobs/docker-builder/config.xml
