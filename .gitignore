@@ -1,0 +1,3 @@
+work/
+!jenkins/jobs/docker-builder/config.xml
+jenkins/jobs
