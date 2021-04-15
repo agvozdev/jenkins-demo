@@ -63,6 +63,7 @@ Upon hitting Ctrl+C cleanup script will be fired. If you don't want that, you sh
 
 To delete working files aside from using `demo.sh` just run `cleanup.sh`. 
 
+To prevent mess during next commits it is better to remember to cleanup every time and to keep `cleanup.sh` update after each new job.
 
 
 ## Cases
